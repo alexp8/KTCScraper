@@ -65,7 +65,6 @@ public class SeleniumHelper {
 
     public static void tear() {
         if (driver != null) {
-//            driver.close();
             driver.quit();
             driver = null;
         }

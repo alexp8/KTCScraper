@@ -39,22 +39,22 @@ public class KTCSelenium {
         try {
             JavascriptExecutor js = (JavascriptExecutor) driver;
 
+            // get the url for this player
             String playerUrl = selenium().getPlayerUrl(playerName);
             logger.info("Player url found '{}'", playerUrl);
             driver.get(playerUrl);
-//            closeKtCPopup();
-
 
             // get all results
             WebElement allTimeFilter = driver.findElement(By.id("all-time"));
             actions.click(allTimeFilter).perform();
             sleep(3);
 
-            // load the graph
+            // load the graph with data
             WebElement graphEle = driver.findElement(By.id("block-value-graph"));
 
             List<WebElement> hoverGroups = graphEle.findElements(By.cssSelector(".hoverGroup"));
 
+            // parse the values
             Map<String, String> values = new HashMap<>();
             for (int i = 0; i < hoverGroups.size(); i++) {
 
@@ -64,7 +64,7 @@ public class KTCSelenium {
                 String dateText = (String) js.executeScript("return arguments[0].textContent;", hoverDate);
                 String hoverValueText = (String) js.executeScript("return arguments[0].textContent;", hoverValue);
 
-                values.put(ParseDateUtil.parseDate(dateText), hoverValueText);
+                values.put(dateText, hoverValueText);
 
                 i += 30;
             }
