@@ -5,14 +5,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import service.KTCUrl;
 import util.ParseDateUtil;
 
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +54,7 @@ public class KTCSelenium {
 
             // parse the values
             Map<String, String> values = new HashMap<>();
-            for (int i = 0; i < hoverGroups.size(); i++) {
+            for (int i = 0; i < hoverGroups.size(); i += 30) {
 
                 WebElement hoverDate = hoverGroups.get(i).findElement(By.cssSelector(".hoverDate"));
                 WebElement hoverValue = hoverGroups.get(i).findElement(By.cssSelector(".graphVal.hoverVal"));
@@ -64,9 +62,7 @@ public class KTCSelenium {
                 String dateText = (String) js.executeScript("return arguments[0].textContent;", hoverDate);
                 String hoverValueText = (String) js.executeScript("return arguments[0].textContent;", hoverValue);
 
-                values.put(dateText, hoverValueText);
-
-                i += 30;
+                values.put(ParseDateUtil.parseDate(dateText), hoverValueText);
             }
 
             return Player.builder()
@@ -76,7 +72,7 @@ public class KTCSelenium {
 
         } catch (WebDriverException e) {
             SeleniumHelper.takeScreenshot();
-            throw new RuntimeException(e);
+            throw new RuntimeException("Error processing player data for " + playerName, e);
         }
     }
 
@@ -134,7 +130,7 @@ public class KTCSelenium {
         try {
             WebElement close = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("dont-know")));
             actions.click(close).perform();
-        } catch (Exception ignored){
+        } catch (Exception ignored) {
 
         }
     }
