@@ -11,9 +11,8 @@ import service.KTCUrl;
 import util.ParseDateUtil;
 
 import java.time.Duration;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
 public class KTCSelenium {
@@ -53,7 +52,7 @@ public class KTCSelenium {
             List<WebElement> hoverGroups = graphEle.findElements(By.cssSelector(".hoverGroup"));
 
             // parse the values
-            Map<String, String> values = new HashMap<>();
+            TreeMap<String, String> values = new TreeMap<>(Player.COMPARATOR);
             for (int i = 0; i < hoverGroups.size(); i += 30) {
 
                 WebElement hoverDate = hoverGroups.get(i).findElement(By.cssSelector(".hoverDate"));
