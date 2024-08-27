@@ -1,3 +1,4 @@
 .idea/
 KTCWebScrape.iml
 target/
+src/main/resources/player_data/*
