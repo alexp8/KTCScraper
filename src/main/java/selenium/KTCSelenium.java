@@ -132,7 +132,7 @@ public class KTCSelenium {
         StringBuilder playerUrlData = new StringBuilder();
         playerUrlData.append("id,name,url").append(System.lineSeparator());
 
-        int pageNumber = 1;
+        int pageNumber = 0;
         do {
             String url = String.format("%s?page=%s&filters=QB|WR|RB|TE|RDP&format=2", KTC_HOST.getUrl() + DYNASTY_RANKINGS.getUrl(), pageNumber++);
             logger.info("Opening url '{}'", url);

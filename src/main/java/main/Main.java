@@ -36,9 +36,14 @@ public class Main {
         selenium().closeKtCPopup();
 
         for (PlayerUrl playerUrl : PlayerHelper.getAllPlayerUrls()) {
-            Player player = selenium().scrapePlayerData(playerUrl.getName(), playerUrl.getUrl());
 
             Path outputPath = Paths.get(FileHelper.SRC_MAIN_RESOURCES.toString(), "player_data", String.format("%s-%s.csv", playerUrl.getName().replace(" ", "_"), playerUrl.getId()));
+
+            if (outputPath.toFile().exists())
+                continue;
+
+            Player player = selenium().scrapePlayerData(playerUrl.getName(), playerUrl.getUrl());
+
             FileHelper.write(outputPath, player.csv());
         }
     }
