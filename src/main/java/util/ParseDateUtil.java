@@ -11,7 +11,7 @@ public class ParseDateUtil {
 
         DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("MMM. dd, yyyy", Locale.ENGLISH);
 
-        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM");
+        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         try {
             LocalDate date = LocalDate.parse(dateString, inputFormatter);

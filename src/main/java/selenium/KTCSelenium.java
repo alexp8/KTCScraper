@@ -9,15 +9,19 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import service.KTCUrl;
 import util.ParseDateUtil;
+import util.PlayerHelper;
 
 import java.time.Duration;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class KTCSelenium {
     private static final Logger logger = LogManager.getLogger();
-    private final WebDriverWait wait;
+    private final WebDriverWait threeSecondWait;
+    private final WebDriverWait fiveSecondWait;
     private final WebDriver driver;
     private final Actions actions;
 
@@ -28,16 +32,15 @@ public class KTCSelenium {
     private KTCSelenium() {
         this.driver = SeleniumHelper.getDriver();
         actions = new Actions(driver);
-        this.wait = new WebDriverWait(SeleniumHelper.getDriver(), Duration.ofSeconds(3));
+        this.threeSecondWait = new WebDriverWait(SeleniumHelper.getDriver(), Duration.ofSeconds(3));
+        this.fiveSecondWait = new WebDriverWait(SeleniumHelper.getDriver(), Duration.ofSeconds(5));
     }
 
     public Player scrapePlayer(String playerName) {
 
         try {
-            JavascriptExecutor js = (JavascriptExecutor) driver;
-
             // get the url for this player
-            String playerUrl = selenium().getPlayerUrl(playerName);
+            String playerUrl = PlayerHelper.getPlayerUrl(playerName);
             logger.info("Player url found '{}'", playerUrl);
             driver.get(playerUrl);
 
@@ -48,18 +51,17 @@ public class KTCSelenium {
 
             // load the graph with data
             WebElement graphEle = driver.findElement(By.id("block-value-graph"));
+            String html = graphEle.getAttribute("outerHTML");
 
-            List<WebElement> hoverGroups = graphEle.findElements(By.cssSelector(".hoverGroup"));
+            // Regex pattern to match hoverDate and hoverValue
+            Pattern pattern = Pattern.compile("<text class=\"hoverDate\"[^>]*>([^<]+)<\\/text>.*?<text class=\"graphVal hoverVal\"[^>]*>([^<]+)<\\/text>", Pattern.DOTALL);
+            Matcher matcher = pattern.matcher(html);
 
-            // parse the values
+            // Find and print the hoverDate and hoverValue
             TreeMap<String, String> values = new TreeMap<>(Player.COMPARATOR);
-            for (int i = 0; i < hoverGroups.size(); i += 30) {
-
-                WebElement hoverDate = hoverGroups.get(i).findElement(By.cssSelector(".hoverDate"));
-                WebElement hoverValue = hoverGroups.get(i).findElement(By.cssSelector(".graphVal.hoverVal"));
-
-                String dateText = (String) js.executeScript("return arguments[0].textContent;", hoverDate);
-                String hoverValueText = (String) js.executeScript("return arguments[0].textContent;", hoverValue);
+            while (matcher.find()) {
+                String dateText = matcher.group(1);
+                String hoverValueText = matcher.group(2);
 
                 values.put(ParseDateUtil.parseDate(dateText), hoverValueText);
             }
@@ -116,6 +118,41 @@ public class KTCSelenium {
         return null;
     }
 
+    public String getPlayerUrls() {
+
+        closeKtCPopup();
+
+        StringBuilder playerUrlData = new StringBuilder();
+        playerUrlData.append("id,name,url").append(System.lineSeparator());
+
+        int pageNumber = 1;
+        do {
+            String url = String.format("%s?page=%s&filters=QB|WR|RB|TE|RDP&format=2", KTCUrl.DYNASTY_RANKINGS.getUrl(), pageNumber++);
+            logger.info("Opening url '{}'", url);
+            driver.get(url);
+
+            // Wait for search results to load and find the first result
+            WebElement resultsEle = fiveSecondWait.until(ExpectedConditions.presenceOfElementLocated(By.id("rankings-page-rankings")));
+            String resultHtml = resultsEle.getAttribute("outerHTML");
+
+            // parse the links to each player
+            Pattern pattern = Pattern.compile("<a\\s+href=\"([^\"]+)\"[^>]*>([^<]+)<\\/a>", Pattern.DOTALL);
+            Matcher matcher = pattern.matcher(resultHtml);
+
+            while (matcher.find()) {
+                String playerUrl = matcher.group(1);
+                String playerName = matcher.group(2);
+
+                String id = playerUrl.split("-")[playerUrl.split("-").length - 1];
+
+                playerUrlData.append(id).append(",").append(playerName).append(",").append(playerUrl).append(System.lineSeparator());
+            }
+
+        } while (pageNumber < 10);
+
+        return playerUrlData.toString();
+    }
+
     private void sleep(int sleepDuration) {
         try {
             TimeUnit.SECONDS.sleep(sleepDuration);
@@ -127,10 +164,13 @@ public class KTCSelenium {
     public void closeKtCPopup() {
 
         try {
-            WebElement close = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("dont-know")));
+            WebElement close = threeSecondWait.until(ExpectedConditions.presenceOfElementLocated(By.id("dont-know")));
             actions.click(close).perform();
         } catch (Exception ignored) {
 
         }
+//        JavascriptExecutor js = (JavascriptExecutor) driver;
+//        js.executeScript("var popup = document.getElementById('dont-know'); if (popup) { popup.remove(); }");
+
     }
 }
