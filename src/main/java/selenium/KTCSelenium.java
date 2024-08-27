@@ -7,7 +7,6 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import service.KTCUrl;
 import util.ParseDateUtil;
 import util.PlayerHelper;
 
@@ -17,6 +16,9 @@ import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static service.KTCUrl.DYNASTY_RANKINGS;
+import static service.KTCUrl.KTC_HOST;
 
 public class KTCSelenium {
     private static final Logger logger = LogManager.getLogger();
@@ -36,45 +38,50 @@ public class KTCSelenium {
         this.fiveSecondWait = new WebDriverWait(SeleniumHelper.getDriver(), Duration.ofSeconds(5));
     }
 
-    public Player scrapePlayer(String playerName) {
+    public Player scrapePlayerFromPlayerName(String playerName) {
 
         try {
             // get the url for this player
             String playerUrl = PlayerHelper.getPlayerUrl(playerName);
-            logger.info("Player url found '{}'", playerUrl);
-            driver.get(playerUrl);
-
-            // get all results
-            WebElement allTimeFilter = driver.findElement(By.id("all-time"));
-            actions.click(allTimeFilter).perform();
-            sleep(3);
-
-            // load the graph with data
-            WebElement graphEle = driver.findElement(By.id("block-value-graph"));
-            String html = graphEle.getAttribute("outerHTML");
-
-            // Regex pattern to match hoverDate and hoverValue
-            Pattern pattern = Pattern.compile("<text class=\"hoverDate\"[^>]*>([^<]+)<\\/text>.*?<text class=\"graphVal hoverVal\"[^>]*>([^<]+)<\\/text>", Pattern.DOTALL);
-            Matcher matcher = pattern.matcher(html);
-
-            // Find and print the hoverDate and hoverValue
-            TreeMap<String, String> values = new TreeMap<>(Player.COMPARATOR);
-            while (matcher.find()) {
-                String dateText = matcher.group(1);
-                String hoverValueText = matcher.group(2);
-
-                values.put(ParseDateUtil.parseDate(dateText), hoverValueText);
-            }
-
-            return Player.builder()
-                    .name(playerName)
-                    .values(values)
-                    .build();
+            return scrapePlayerData(playerName, playerUrl);
 
         } catch (WebDriverException e) {
             SeleniumHelper.takeScreenshot();
             throw new RuntimeException("Error processing player data for " + playerName, e);
         }
+    }
+
+    public Player scrapePlayerData(String playerName, String playerUrl) {
+
+        logger.info("Player url found '{}'", KTC_HOST.getUrl() + playerUrl);
+        driver.get(KTC_HOST.getUrl() + playerUrl);
+
+        // get all results
+        WebElement allTimeFilter = driver.findElement(By.id("all-time"));
+        actions.click(allTimeFilter).perform();
+        sleep(3);
+
+        // load the graph with data
+        WebElement graphEle = driver.findElement(By.id("block-value-graph"));
+        String html = graphEle.getAttribute("outerHTML");
+
+        // Regex pattern to match hoverDate and hoverValue
+        Pattern pattern = Pattern.compile("<text class=\"hoverDate\"[^>]*>([^<]+)<\\/text>.*?<text class=\"graphVal hoverVal\"[^>]*>([^<]+)<\\/text>", Pattern.DOTALL);
+        Matcher matcher = pattern.matcher(html);
+
+        // Find and print the hoverDate and hoverValue
+        TreeMap<String, String> values = new TreeMap<>(Player.COMPARATOR);
+        while (matcher.find()) {
+            String dateText = matcher.group(1);
+            String hoverValueText = matcher.group(2);
+
+            values.put(ParseDateUtil.parseDate(dateText), hoverValueText);
+        }
+
+        return Player.builder()
+                .name(playerName)
+                .values(values)
+                .build();
     }
 
     /**
@@ -85,7 +92,7 @@ public class KTCSelenium {
      */
     public String getPlayerUrl(String playerName) {
 
-        String url = KTCUrl.DYNASTY_RANKINGS.getUrl();
+        String url = KTC_HOST.getUrl() + DYNASTY_RANKINGS.getUrl();
         logger.info("Opening url '{}'", url);
         driver.get(url);
         closeKtCPopup();
@@ -127,7 +134,7 @@ public class KTCSelenium {
 
         int pageNumber = 1;
         do {
-            String url = String.format("%s?page=%s&filters=QB|WR|RB|TE|RDP&format=2", KTCUrl.DYNASTY_RANKINGS.getUrl(), pageNumber++);
+            String url = String.format("%s?page=%s&filters=QB|WR|RB|TE|RDP&format=2", KTC_HOST.getUrl() + DYNASTY_RANKINGS.getUrl(), pageNumber++);
             logger.info("Opening url '{}'", url);
             driver.get(url);
 
@@ -159,6 +166,11 @@ public class KTCSelenium {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void openKtc() {
+        driver.get(KTC_HOST.getUrl() + DYNASTY_RANKINGS.getUrl());
+        sleep(1);
     }
 
     public void closeKtCPopup() {

@@ -4,7 +4,8 @@ import lombok.Getter;
 
 @Getter
 public enum KTCUrl {
-    DYNASTY_RANKINGS("https://keeptradecut.com/dynasty-rankings");
+    KTC_HOST("https://keeptradecut.com"),
+    DYNASTY_RANKINGS("/dynasty-rankings");
 
     private final String url;
 

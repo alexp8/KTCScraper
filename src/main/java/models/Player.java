@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 @Getter
 @Builder
-public class Player implements FEntity {
+public class Player {
 
     /* Sort latest descending */
     public static final Comparator<String> COMPARATOR = Comparator.reverseOrder();
@@ -25,6 +25,13 @@ public class Player implements FEntity {
         return values.entrySet().stream()
                 .map(this::row)
                 .collect(Collectors.joining("\n"));
+    }
+
+    public String csv() {
+        return "DATE,VALUE" + System.lineSeparator() +
+                values.entrySet().stream()
+                        .map(x -> x.getKey() + "," + x.getValue())
+                        .collect(Collectors.joining("\n"));
     }
 
     private String row(Map.Entry<String, String> x) {

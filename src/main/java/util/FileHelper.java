@@ -12,7 +12,7 @@ import java.nio.file.Paths;
 public class FileHelper {
     protected static final Logger logger = LogManager.getLogger();
 
-    public static final Path SRC_MAIN_RESOURCES = Paths.get("Sleeper", "src", "main", "resources");
+    public static final Path SRC_MAIN_RESOURCES = Paths.get("src", "main", "resources");
 
     public static void write(Path path, String content) {
         logger.info("Writing to \"{}\"", path.toAbsolutePath().toString());
