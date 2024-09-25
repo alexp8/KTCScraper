@@ -17,8 +17,9 @@ public class Player {
 
     private final String name;
     private final int age;
+    private final int id;
 
-    // key = 'yyyy-MM'
+    // key = 'yyyy-MM', value=KTC_value
     private final TreeMap<String, String> values;
 
     public String prettyPrint() {
@@ -28,9 +29,13 @@ public class Player {
     }
 
     public String csv() {
-        return "DATE,VALUE" + System.lineSeparator() +
-                values.entrySet().stream()
-                        .map(x -> x.getKey() + "," + x.getValue())
+        return "ID,NAME,DATE,VALUE"
+                + System.lineSeparator()
+                + values.entrySet().stream()
+                        .map(x -> String.format("\"%d\",\"%s\",\"%s\",\"%s\"",
+                                id, name, x.getKey(), x.getValue()
+                                )
+                        )
                         .collect(Collectors.joining("\n"));
     }
 

@@ -37,7 +37,10 @@ public class Main {
 
         for (PlayerUrl playerUrl : PlayerHelper.getAllPlayerUrls()) {
 
-            Path outputPath = Paths.get(FileHelper.SRC_MAIN_RESOURCES.toString(), "player_data", String.format("%s-%s.csv", playerUrl.getName().replace(" ", "_"), playerUrl.getId()));
+            String playerNameCleansed = playerUrl.getName().replaceAll("[^a-zA-Z0-9]", "_");
+            String fileName = String.format("%s-%s.csv", playerNameCleansed, playerUrl.getId());
+
+            Path outputPath = Paths.get(FileHelper.SRC_MAIN_RESOURCES.toString(), "player_data", fileName);
 
             if (outputPath.toFile().exists())
                 continue;
