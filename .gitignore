@@ -2,3 +2,4 @@
 KTCWebScrape.iml
 target/
 src/main/resources/player_data/*
+src/main/resources/player_data.*

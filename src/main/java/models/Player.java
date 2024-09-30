@@ -32,7 +32,7 @@ public class Player {
         return "ID,NAME,DATE,VALUE"
                 + System.lineSeparator()
                 + values.entrySet().stream()
-                        .map(x -> String.format("\"%d\",\"%s\",\"%s\",\"%s\"",
+                        .map(x -> String.format("%d,\"%s\",\"%s\",%s",
                                 id, name, x.getKey(), x.getValue()
                                 )
                         )

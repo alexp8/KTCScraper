@@ -78,7 +78,10 @@ public class KTCSelenium {
             values.put(ParseDateUtil.parseDate(dateText), hoverValueText);
         }
 
+        int playerId = Integer.parseInt(playerUrl.split("-")[playerUrl.split("-").length - 1]);
+
         return Player.builder()
+                .id(playerId)
                 .name(playerName)
                 .values(values)
                 .build();

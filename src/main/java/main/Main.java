@@ -5,6 +5,7 @@ import models.PlayerUrl;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.WebDriverException;
 import selenium.SeleniumHelper;
 import util.FileHelper;
 import util.PlayerHelper;
@@ -45,9 +46,14 @@ public class Main {
             if (outputPath.toFile().exists())
                 continue;
 
-            Player player = selenium().scrapePlayerData(playerUrl.getName(), playerUrl.getUrl());
-
-            FileHelper.write(outputPath, player.csv());
+            Player player;
+            try {
+                player = selenium().scrapePlayerData(playerUrl.getName(), playerUrl.getUrl());
+                FileHelper.write(outputPath, player.csv());
+            } catch (WebDriverException e) {
+                SeleniumHelper.takeScreenshot();
+                logger.warn("Error processing player data for {}, {}",playerNameCleansed, e.getMessage());
+            }
         }
     }
 
