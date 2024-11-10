@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PlayerHelper {
-    private static final Path PLAYER_URLS_PATH = Paths.get(FileHelper.SRC_MAIN_RESOURCES.toString(), "player_urls.csv");
+    public static final Path PLAYER_URLS_PATH = Paths.get(FileHelper.SRC_MAIN_RESOURCES.toString(), "player_urls.csv");
 
     public static String getPlayerUrl(String findPlayerName) {
 

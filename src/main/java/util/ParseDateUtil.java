@@ -21,4 +21,15 @@ public class ParseDateUtil {
             throw new RuntimeException(String.format("Unable to parse date: %s%n", dateString), e);
         }
     }
+
+    public static LocalDate toDate(String dateString) {
+
+        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH);
+
+        try {
+            return LocalDate.parse(dateString, inputFormatter);
+        } catch (DateTimeParseException e) {
+            throw new RuntimeException(String.format("Unable to parse date: %s%n", dateString), e);
+        }
+    }
 }

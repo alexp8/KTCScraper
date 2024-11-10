@@ -9,8 +9,8 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <maven.compiler.source>14</maven.compiler.source>
-        <maven.compiler.target>14</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
     </properties>
 
     <dependencies>
@@ -32,7 +32,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.12</version>
+            <version>1.18.24</version>
             <scope>provided</scope>
         </dependency>
 
@@ -64,6 +64,12 @@
             <version>4.12.1</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-devtools-v115</artifactId>
+            <version>4.12.1</version>
+        </dependency>
+
         <!-- WebDriverManager (optional, but useful for managing WebDriver binaries) -->
         <dependency>
             <groupId>io.github.bonigarcia</groupId>
@@ -73,6 +79,5 @@
         </dependency>
 
     </dependencies>
-
 
 </project>

@@ -39,7 +39,7 @@ public class SeleniumHelper {
         try {
             FileUtils.copyFile(screenshot, destination);
         } catch (IOException ioException) {
-            ioException.printStackTrace();
+            logger.warn(ioException.getMessage(), ioException);
         }
 
     }
@@ -48,7 +48,7 @@ public class SeleniumHelper {
 
         if (driver == null) {
 
-            WebDriverManager.chromedriver().setup();
+            WebDriverManager.chromedriver().browserVersion("130").setup();
 
             ChromeOptions options = new ChromeOptions();
             options.addArguments("--headless");
@@ -58,6 +58,7 @@ public class SeleniumHelper {
             options.addArguments("--window-size=1920,1080");
 
             driver = new ChromeDriver(options);
+            driver.manage().window().maximize();
         }
 
         return driver;

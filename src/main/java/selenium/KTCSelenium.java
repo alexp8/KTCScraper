@@ -58,7 +58,7 @@ public class KTCSelenium {
 
         // get all results
         WebElement allTimeFilter = driver.findElement(By.id("all-time"));
-        actions.click(allTimeFilter).perform();
+        actions.moveToElement(allTimeFilter).click(allTimeFilter).perform();
         sleep(3);
 
         // load the graph with data

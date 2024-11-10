@@ -12,9 +12,11 @@ import util.PlayerHelper;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.concurrent.TimeUnit;
 
 import static selenium.KTCSelenium.selenium;
+import static util.PlayerHelper.PLAYER_URLS_PATH;
 
 public class Main {
     private static final Logger logger = LogManager.getLogger();
@@ -25,13 +27,14 @@ public class Main {
         try {
 //            scrapePlayer();
 //            scrapePlayerUrls();
-            scrapeAllPlayers();
+//            LocalDate minDate = LocalDate.now().minusWeeks(8);
+            scrapeAllPlayers(null);
         } finally {
             SeleniumHelper.tear();
         }
     }
 
-    private static void scrapeAllPlayers() {
+    private static void scrapeAllPlayers(LocalDate minDate) {
 
         selenium().openKtc();
         selenium().closeKtCPopup();
@@ -49,7 +52,7 @@ public class Main {
             Player player;
             try {
                 player = selenium().scrapePlayerData(playerUrl.getName(), playerUrl.getUrl());
-                FileHelper.write(outputPath, player.csv());
+                FileHelper.write(outputPath, player.csv(minDate));
             } catch (WebDriverException e) {
                 SeleniumHelper.takeScreenshot();
                 logger.warn("Error processing player data for {}, {}",playerNameCleansed, e.getMessage());
@@ -73,5 +76,6 @@ public class Main {
     private static void scrapePlayerUrls() {
         String vals = selenium().getPlayerUrls();
         logger.info("Player urls:\n{}", vals);
+        FileHelper.write(PLAYER_URLS_PATH, vals);
     }
 }
