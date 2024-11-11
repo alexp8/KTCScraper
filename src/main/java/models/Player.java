@@ -6,7 +6,10 @@ import util.ParseDateUtil;
 
 import java.time.LocalDate;
 import java.time.temporal.WeekFields;
-import java.util.*;
+import java.util.Comparator;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 @Getter
@@ -21,7 +24,7 @@ public class Player {
     private final int id;
 
     // key = 'yyyy-MM', value=KTC_value
-    private final TreeMap<String, String> values;
+    private TreeMap<String, String> values;
 
     public String prettyPrint() {
         return values.entrySet().stream()
@@ -29,24 +32,11 @@ public class Player {
                 .collect(Collectors.joining("\n"));
     }
 
-    public String csv(LocalDate minDate) {
-
-        TreeMap<String, String> filteredValues = values.entrySet().stream()
-                .filter(x -> minDate == null || ParseDateUtil.toDate(x.getKey()).isAfter(minDate))
-                .collect(
-                        Collectors.toMap(
-                                Map.Entry::getKey,
-                                Map.Entry::getValue,
-                                (existing, replacement) -> existing,
-                                TreeMap::new
-                        )
-                );
-
-        filteredValues = getOneScorePerWeek(filteredValues);
+    public String csv() {
 
         return "ID,NAME,DATE,VALUE"
                 + System.lineSeparator()
-                + getKtcValues(filteredValues);
+                + getKtcValues(values);
     }
 
     private String getKtcValues(TreeMap<String, String> values) {
@@ -58,7 +48,7 @@ public class Player {
                 .collect(Collectors.joining("\n"));
     }
 
-    private TreeMap<String, String> getOneScorePerWeek(Map<String, String> ktcValues) {
+    private TreeMap<String, String> getOneValuePerWeek(Map<String, String> ktcValues) {
         return ktcValues.entrySet().stream()
                 .collect(Collectors.groupingBy(
                         entry -> {
@@ -84,6 +74,28 @@ public class Player {
 
     private String row(Map.Entry<String, String> x) {
         return "Date: " + x.getKey() + ", value: " + x.getValue();
+    }
+
+    public void trimValuesToWeek() {
+        this.values = getOneValuePerWeek(this.values);
+    }
+
+    public void trimValuesPastMin(LocalDate minDate) {
+
+        if (minDate == null)
+            return;
+
+        // filter values to be past 'minDate'
+        this.values = values.entrySet().stream()
+                .filter(x -> ParseDateUtil.toDate(x.getKey()).isAfter(minDate))
+                .collect(
+                        Collectors.toMap(
+                                Map.Entry::getKey,
+                                Map.Entry::getValue,
+                                (existing, replacement) -> existing,
+                                TreeMap::new
+                        )
+                );
     }
 
     @Getter

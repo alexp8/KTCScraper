@@ -52,7 +52,10 @@ public class Main {
             Player player;
             try {
                 player = selenium().scrapePlayerData(playerUrl.getName(), playerUrl.getUrl());
-                FileHelper.write(outputPath, player.csv(minDate));
+                player.trimValuesToWeek();
+                player.trimValuesPastMin(minDate);
+
+                FileHelper.write(outputPath, player.csv());
             } catch (WebDriverException e) {
                 SeleniumHelper.takeScreenshot();
                 logger.warn("Error processing player data for {}, {}",playerNameCleansed, e.getMessage());
